@@ -1,6 +1,6 @@
 # Clustering Synthetic Blobs: K-Means, Agglomerative, DBSCAN
 
-[![CI](https://github.com/rohanreddy79/ML-Scatter-Classification/actions/workflows/ci.yml/badge.svg)](https://github.com/rohanreddy79/ML-Scatter-Classification/actions/workflows/ci.yml)
+[![CI](https://github.com/rohanreddy79/sklearn-clustering-lab/actions/workflows/ci.yml/badge.svg)](https://github.com/rohanreddy79/sklearn-clustering-lab/actions/workflows/ci.yml)
 
 **A short scikit-learn notebook that generates four Gaussian blobs with `make_blobs` and compares how K-means, single-link and complete-link hierarchical clustering, and DBSCAN recover them.**
 
