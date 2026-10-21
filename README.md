@@ -1,5 +1,7 @@
 # Clustering Synthetic Blobs: K-Means, Agglomerative, DBSCAN
 
+[![CI](https://github.com/rohanreddy79/ML-Scatter-Classification/actions/workflows/ci.yml/badge.svg)](https://github.com/rohanreddy79/ML-Scatter-Classification/actions/workflows/ci.yml)
+
 **A short scikit-learn notebook that generates four Gaussian blobs with `make_blobs` and compares how K-means, single-link and complete-link hierarchical clustering, and DBSCAN recover them.**
 
 Despite the repository name, this is an unsupervised *clustering* exercise, not a classification
@@ -24,7 +26,7 @@ tuned model.
 - **Part 1, K-means**: `KMeans(n_clusters=3)` is fitted, `cluster_centers_` printed, and the three
   partitions scattered in red / black / blue. Two printed paragraphs discuss K = 3 and K = 4.
 - **Part 2, hierarchical clustering**: `AgglomerativeClustering(n_clusters=4, linkage="single",
-  affinity="euclidean")` (MIN) and the same with `linkage="complete"` (MAX), each followed by a
+  metric="euclidean")` (MIN) and the same with `linkage="complete"` (MAX), each followed by a
   scatter coloured by label.
 - **Part 3, DBSCAN**: `DBSCAN(eps=2, min_samples=28, metric="euclidean")`; noise points
   (label -1) are counted and left out of the plot.
@@ -34,6 +36,8 @@ tuned model.
 | File | Purpose |
 | --- | --- |
 | `ML.ipynb` | The whole lab: data generation, K-means, single/complete-link agglomerative, DBSCAN, plots |
+| `requirements.txt` | Pinned scikit-learn 1.9.1, NumPy, Matplotlib and the nbformat/nbconvert/ipykernel runtime |
+| `.github/workflows/ci.yml` | nbformat validation, headless execution, check of the printed cluster counts |
 
 Pipeline: `make_blobs` -> NumPy array `points` -> one `fit_predict` per algorithm -> labels used to
 colour a Matplotlib scatter. No scaling, train/test split or scoring metric is involved.
@@ -50,26 +54,32 @@ colour a Matplotlib scatter. No scaling, train/test split or scoring metric is i
 ## Running it
 
 ```bash
-pip install "scikit-learn<1.4" matplotlib numpy jupyter
-jupyter notebook ML.ipynb
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt            # scikit-learn 1.9.1, matplotlib, nbconvert, ipykernel
+pip install notebook && jupyter notebook ML.ipynb   # interactive
 ```
 
-Or headless, without editing the notebook in place:
+Headless, without editing the committed notebook:
 
 ```bash
-uv run --python 3.12 --with "scikit-learn<1.4" --with matplotlib --with nbconvert --with ipykernel \
-  jupyter nbconvert --to notebook --execute ML.ipynb --output executed.ipynb
+jupyter nbconvert --to notebook --execute ML.ipynb --output executed.ipynb
 ```
 
-Verified on this machine with scikit-learn 1.3.2: the notebook runs end-to-end and reproduces the
-same cluster counts, the same K-means centres (in a different order) and the 49 DBSCAN noise
-points. With scikit-learn 1.4 or newer it stops at the first `AgglomerativeClustering` call with
-`TypeError` because the `affinity=` argument was removed in favour of `metric=`.
+Verified on this machine (2026-10, Python 3.12.12, scikit-learn 1.9.1): the command above finished
+in about 10 s (`[NbConvertApp] Writing ... bytes to executed.ipynb`) with no cell errors, and the
+printed results were the same as the previously committed outputs, produced on scikit-learn < 1.4 (K-means
+centres `[-5.50955539 -2.25816149]`, `[-2.13583883 7.57989854]`, `[0.05161133 -5.35489826]`,
+"Found 4 total clusters!" for single-link, complete-link and DBSCAN, "49 points were dropped as
+noise."). The committed notebook outputs are from that run. CI repeats the execution on every push.
+
+## Changelog
+
+- 2026-10: replaced the `affinity=` keyword (removed in scikit-learn 1.4) with `metric=` in the two
+  `AgglomerativeClustering` calls and re-executed the notebook on scikit-learn 1.9.1 (identical
+  cluster counts, centres and noise count); pinned requirements; added MIT license and CI.
 
 ## Limitations / Notes
 
-- The `affinity=` keyword pins the notebook to scikit-learn < 1.4; changing the two calls to
-  `metric="euclidean"` would make it run on current releases.
 - The K = 4 discussion paragraph is printed from a string, but the code only ever fits K-means with
   `n_clusters=3`; there is no K = 4 run or plot in the notebook.
 - `KMeans` is not seeded, so cluster ordering (and, in principle, the centres) can vary between runs
